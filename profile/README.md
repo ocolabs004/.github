@@ -1,3 +1,5 @@
+![오코랩스](https://video.oortgroup.synology.me/%EC%98%A4%EC%BD%94%EB%9E%A9%EC%8A%A4/ocolabs.jpg)
+
 # OcoLabs (오코랩스)
 
 오코랩스는,  
