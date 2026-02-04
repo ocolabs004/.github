@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="[이미지URL](https://video.oortgroup.synology.me/%EC%98%A4%EC%BD%94%EB%9E%A9%EC%8A%A4/ocolabs-main.jpg)" alt="OcoLabs" width="100%" />
+  <img src="https://video.oortgroup.synology.me/%EC%98%A4%EC%BD%94%EB%9E%A9%EC%8A%A4/ocolabs-main.jpg" alt="OcoLabs" width="100%" />
 </div>
 
 # OcoLabs
