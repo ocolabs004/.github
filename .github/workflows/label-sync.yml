@@ -20,7 +20,8 @@ on:
         type: boolean
         default: false
 
-permissions: {}
+permissions:
+  contents: read   # checkout이 이 레포 콘텐츠를 읽는 데 필요. 라벨 쓰기는 ORG_LABEL_SYNC_TOKEN(별도) 사용
 
 concurrency:
   group: org-label-sync
