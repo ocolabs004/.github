@@ -1,0 +1,53 @@
+name: Org Label Sync
+
+# ocolabs 조직 전체(비보관) 레포에 표준 이슈 라벨을 동기화한다.
+# 신규 레포는 매일 동기화로 자동 반영(최대 24h 이내). 즉시 적용하려면 수동 실행(Run workflow).
+#
+# 선행 설정(1회): org 레포 라벨 쓰기 권한 토큰을 시크릿으로 추가
+#   - classic PAT(scope: repo) 또는 fine-grained PAT(Issues: Read and write, Metadata: Read, 대상=org 전체 레포)
+#   - 이 레포(.github) Settings > Secrets and variables > Actions 에 ORG_LABEL_SYNC_TOKEN 으로 저장
+#   - 기본 GITHUB_TOKEN 은 자기 레포만 수정 가능하여 타 레포 라벨 동기화 불가
+#
+# Issue Type(버그/기능/개선/작업/문서)은 org 레벨 정의라 신규 레포에 자동 적용되므로 별도 동기화 불필요.
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # 매일 00:00 UTC (09:00 KST)
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "실제 적용(true) / dry-run(false)"
+        type: boolean
+        default: true
+
+permissions: {}
+
+concurrency:
+  group: org-label-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate token
+        env:
+          GH_TOKEN: ${{ secrets.ORG_LABEL_SYNC_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::ORG_LABEL_SYNC_TOKEN 시크릿이 없습니다. README(labels/) 선행 설정 참고."
+            exit 1
+          fi
+
+      - name: Sync labels
+        env:
+          GH_TOKEN: ${{ secrets.ORG_LABEL_SYNC_TOKEN }}
+          ORG: ${{ github.repository_owner }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.apply }}" != "true" ]; then
+            python3 scripts/sync-labels.py
+          else
+            python3 scripts/sync-labels.py --apply
+          fi
