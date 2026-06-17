@@ -46,6 +46,7 @@ def main():
     repos = all_repos()
     print(f"대상 레포: {len(repos)} (apply={apply})")
     tot_r = tot_c = tot_u = 0
+    fails = []  # (repo, op, stderr) — 실패를 수집해 run 종료 코드에 반영
     for repo in repos:
         cur = labels(repo)
         if cur is None:
@@ -72,19 +73,33 @@ def main():
         tot_r += len(plan_rename); tot_c += len(creates); tot_u += len(updates)
         if not apply:
             continue
+
+        def attempt(op, args):
+            r = run(args)
+            if r.returncode != 0:
+                fails.append((repo, op, (r.stderr or "").strip()))
+
         for src, dst in plan_rename:
             color, desc = CANON[dst]
-            run(["gh", "label", "edit", src, "-R", f"{OWNER}/{repo}",
-                 "--name", dst, "--color", color, "--description", desc])
+            attempt(f"rename {src}→{dst}",
+                    ["gh", "label", "edit", src, "-R", f"{OWNER}/{repo}",
+                     "--name", dst, "--color", color, "--description", desc])
         for n in creates:
             color, desc = CANON[n]
-            run(["gh", "label", "create", n, "-R", f"{OWNER}/{repo}",
-                 "--color", color, "--description", desc, "--force"])
+            attempt(f"create {n}",
+                    ["gh", "label", "create", n, "-R", f"{OWNER}/{repo}",
+                     "--color", color, "--description", desc, "--force"])
         for n in updates:
             color, desc = CANON[n]
-            run(["gh", "label", "edit", n, "-R", f"{OWNER}/{repo}",
-                 "--color", color, "--description", desc])
+            attempt(f"update {n}",
+                    ["gh", "label", "edit", n, "-R", f"{OWNER}/{repo}",
+                     "--color", color, "--description", desc])
     print(f"합계: rename {tot_r} / create {tot_c} / update {tot_u}")
+    if fails:
+        print(f"\n실패 {len(fails)}건 (워크플로 실패 처리):")
+        for repo, op, err in fails:
+            print(f"  ! {repo}: {op} — {err}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
