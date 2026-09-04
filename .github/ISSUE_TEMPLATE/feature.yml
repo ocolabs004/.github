@@ -1,0 +1,24 @@
+name: 기능 요청
+description: 새로 만들거나 개선했으면 하는 것을 제안합니다.
+labels: ["기능 개선"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 어떤 문제를 푸는가
+      description: 기능 자체보다 불편한 상황을 먼저 적어주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 제안하는 방식
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 범위 밖
+      description: 이번에 하지 않을 것. 없으면 비워두세요.
